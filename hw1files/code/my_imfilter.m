@@ -32,8 +32,10 @@ function output = my_imfilter(image, filter)
 
 %%%%%%%%%%%%%%%%
 % Your code here
+%size of image and filter are used in convolution summation limits
 size_of_image = size(image);
 size_of_filter = size(filter);
+
 %image input can be three different type such that: standart uint8 RGB,
 %doubled(im2double) and single(im2single). If its uint8 it should be
 %converted to double for filter operation. Because matlab cannot perform
@@ -65,7 +67,7 @@ for z = 1:3
     %convolution operation
     for i = 1:size_of_image(1)
         for j = 1:size_of_image(2)
-                intersection = padded_channel(i:i+size_of_filter(1)-1,j:j+size_of_filter(2)-1) .*filter ;
+                intersection = padded_channel(i:i+(size_of_filter(1)-1),j:j+size_of_filter(2)-1) .*filter ;
                 if type==0
                     %if the image uint8. It should be converted back
                     output(i,j,z) =uint8(round(sum(sum(intersection))));
