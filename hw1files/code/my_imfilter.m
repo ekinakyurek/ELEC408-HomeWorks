@@ -33,6 +33,11 @@ function output = my_imfilter(image, filter)
 %%%%%%%%%%%%%%%%
 % Your code here
 %size of image and filter are used in convolution summation limits
+% filter = fliplr(filter);
+% filter = transpose(filter);
+% filter = fliplr(filter);
+% filter = transpose(filter);
+
 size_of_image = size(image);
 size_of_filter = size(filter);
 
