@@ -32,31 +32,39 @@ function output = my_imfilter(image, filter)
 
 %%%%%%%%%%%%%%%%
 % Your code here
-%size of image and filter are used in convolution summation limits
-% filter = fliplr(filter);
-% filter = transpose(filter);
-% filter = fliplr(filter);
-% filter = transpose(filter);
+%First flip of the columns the filter for the convolution operation
+ filter = fliplr(filter);
+ %Flip the rows for the convolution operation
+ filter = transpose(fliplr(transpose(filter)));
+ 
 
+%size of image and filter are used in convolution summation limits
 size_of_image = size(image);
 size_of_filter = size(filter);
 
 %image input can be three different type such that: standart uint8 RGB,
 %doubled(im2double) and single(im2single). If its uint8 it should be
 %converted to double for filter operation. Because matlab cannot perform
-%uint8*double operation
+%uint8*double operation, I evaluate those situations
 type = 0;
 if isa(image,'uint8')
-    double_image = double(image);
+    %The input is in the uint8 format, I convert it to double
+    image = double(image);
+    %I initialize the output image with given input type
     output = zeros(size_of_image, 'uint8');
+    %uint8 is named as type 0
     type = 0;
 elseif isa(image,'double') 
-    double_image = image;
+    %if the input is double no need to convert it
+    %I initialize the output image with given input type
     output = zeros(size_of_image,'double');
+    %double is enumarated as type 1
     type = 1;
 elseif isa(image,'single')
-    double_image = image;
+    %if the image is single no need to convert it
+     %I initialize the output image with given input type
     output = zeros(size_of_image, 'single');
+    %single is enumarated as type 2
     type = 2;
 else
     display('Image format is not valid, try again')
@@ -64,10 +72,11 @@ end
 
 %pading is applied for achieve the same resolution after convolution
 pad_size = [(size_of_filter(1)-1)/2 , (size_of_filter(2)-1)/2];
-padded_image = padarray(double_image,pad_size);
+padded_image = padarray(image,pad_size);
 
 %filter applied channel by channel 
 for z = 1:3
+    % get one channel of the image
     padded_channel = padded_image(:,:,z);
     %convolution operation
     for i = 1:size_of_image(1)
@@ -77,13 +86,14 @@ for z = 1:3
                     %if the image uint8. It should be converted back
                     output(i,j,z) =uint8(round(sum(sum(intersection))));
                 else
+                    %if the image double or single no need to convert back
                     output(i,j,z) = sum(sum(intersection));
                 end
         end
     end
 end
-
-%%%%%%%%%%%%%%%%
+%%%%%END OF THE CODE%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
 
 
 
