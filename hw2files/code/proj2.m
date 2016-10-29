@@ -24,8 +24,8 @@ image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 
 % You don't have to work with grayscale images. Matching with color
 % information might be helpful.
-image1 = rgb2gray(single(image1)/255);
-image2 = rgb2gray(single(image2)/255);
+%image1 = rgb2gray(single(image1)/255);
+%image2 = rgb2gray(single(image2)/255);
 
 scale_factor = 0.5; %make images smaller to speed up the algorithm
 image1 = imresize(image1, scale_factor, 'bilinear');

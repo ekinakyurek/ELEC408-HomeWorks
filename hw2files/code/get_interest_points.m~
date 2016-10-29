@@ -54,14 +54,13 @@ for i=1:size(g_ch1x,1)
        h(i,j) =  det(squeeze(C(i,j,:,:)))- alpha*trace(squeeze(C(i,j,:,:)))*trace(squeeze(C(i,j,:,:)));
     end
 end
-threshold = abs(h) > 10*mean2(abs(h)) ; %adaptive
+threshold = h > 10*mean2(h) ; %adaptive
 h= h.*threshold;
 
-% non_max = ordfilt2(h,16,ones(4,4));
-% coordinates = (h==non_max);       % Non max suppression.
-size(h)
-[r,c] = find(h);
-figure, imagesc(image), axis image, hold on
+non_max = ordfilt2(h,16,ones(4,4));
+coordinates = (h==non_max);       % Non max suppression.
+[r,c] = find(coordinates);
+%%figure, imagesc(image), axis image, hold on
 plot(c,r,'ys'), title('corners detected');
 
 
