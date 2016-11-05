@@ -21,15 +21,27 @@ function [matches, confidences] = match_features(features1, features2)
 % section 4.1.3 of Szeliski. 
 
 % Placeholder that you can delete. Random matches and confidences
-num_features1 = size(features1, 1);
-num_features2 = size(features2, 1);
-matches = zeros(num_features1, 2);
-matches(:,1) = randperm(num_features1);
-matches(:,2) = randperm(num_features2);
-confidences = rand(num_features1,1);
+threshold = 0.64;
+distances = pdist2(features1, features2, 'euclidean');
+[distances_sorted, indices] = sort(distances, 2);
+% Sort the matches so that the most confident onces are at the top of the
+% list. You should probably not delete this, so that the evaluation
+% functions can be run on the top matches easily.
+%Find the ratio of the first and second most confident distances for each
+%i,j pair
+ratio = (distances_sorted(:,1)./distances_sorted(:,2));
+test = ratio < threshold;
+confidences = (1./ratio(test));
+
+matches = zeros(size(confidences,1), 2);
+matches(:,1) = find(test);
+matches(:,2) = indices(test, 1);
+
+[confidences, ind] = sort(confidences, 'descend');
+matches = matches(ind,:);
+
 
 % Sort the matches so that the most confident onces are at the top of the
 % list. You should probably not delete this, so that the evaluation
 % functions can be run on the top matches easily.
-[confidences, ind] = sort(confidences, 'descend');
-matches = matches(ind,:);
+

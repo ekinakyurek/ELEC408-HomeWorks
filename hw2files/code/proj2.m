@@ -42,6 +42,7 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 % !!! You will need to implement get_features. !!!
 [image1_features] = get_features(image1, x1, y1, feature_width);
 [image2_features] = get_features(image2, x2, y2, feature_width);
+ 
 
 
 %% Match features. 

@@ -40,18 +40,94 @@ function [features] = get_features(image, x, y, feature_width)
 % of interpolation probably will help, though.
 
 
+gray_image = rgb2gray(image);
+
+sigma = 1;
+gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
+[grad_magnitudes, grad_directions] =imgradient(imfilter(gray_image,gaussian_filter));
+
+features = zeros([size(x,1),128]);
+for i=1:size(x,1)
+    x_coordinate = x(i);
+    y_coordinate = y(i);
+    
+    feature_part_gradients = grad_magnitudes(x_coordinate-feature_width/2 : x_coordinate+feature_width/2-1, y_coordinate-feature_width/2 : y_coordinate+feature_width/2-1).*fspecial('Gaussian', feature_width, 8);
+    feature_part_directions= grad_directions(x_coordinate-feature_width/2 : x_coordinate+feature_width/2-1, y_coordinate-feature_width/2 : y_coordinate+feature_width/2-1);
+   
+    histogram  = [];
+    
+    for j=1:feature_width/4
+      for k=1:feature_width/4
+           histogram = [histogram; getHistogram( feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ), feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 )) ];           
+      end
+    end
+          %features(i,:) = make_histogram_rotation_invariant(histogram, feature_width);
+           features(i,:) = histogram';
+end
+
+features = normc(features);
+features =normc(features.*(features<0.2) + 0.2*(features>=0.2) );
+
 % You do not need to do the normalize -> threshold -> normalize again
 % operation as detailed in Szeliski and the SIFT paper. It can help, though.
 
 % Placeholder that you can delete. Empty features.
-features = zeros(size(x,1), 128);
+%features = zeros(size(x,1), 128);
 
 
 
 end
 
+function histogram = getHistogram(Gdir, Grad)
+Gdir = Gdir(:);
+Grad = Grad(:);
+histogram = [(Gdir>=-180 & Gdir<-135)'*Grad; (Gdir>=-135 & Gdir<-90)'*Grad; ( Gdir>=-90 & Gdir<-45)'*Grad; (Gdir>=-45 & Gdir<0)'*Grad; (Gdir>=0 & Gdir<45)'*Grad; (Gdir>=45 & Gdir<90)'*Grad; (Gdir>=90 & Gdir<135)'*Grad; (Gdir>=135 & Gdir<180)'*Grad];
+end
+
+function  histogram = make_histogram_rotation_invariant(histogram, feature_width)
+   %first peak
+    [~, I] =  max(histogram);
+    %second peak
+   % [~,I2] = max(histogram(I) >histogram > histogram(I)*0.8);
+    I = mod(I,8); %Histogram angle of the maximum gradient
+    if I == 0
+         I = 8;
+    end   
+   %I2 = mod(I2,8);
+   %if I2 == 0
+   %   I2 = 8;
+   %end
+   for h=1:feature_width
+       histogram((h-1)*8+1: h*8) = circshift(histogram((h-1)*8+1: h*8),-I+1);
+       %histogram((h-1)*8+2: h*8) =  circshift(histogram((h-1)*8+2: h*8),-I2+2);
+   end
+
+end
 
 
+% function rotational_invariant_feature_vector =  make_rotational_invariant(gradients,directions)
+%        
+%     if Gdir>=-180 && Gdir<-135
+%         histogram_part = 1;
+%     elseif Gdir>=-135 && Gdir<-90
+%          histogram_part =2;
+%     elseif Gdir>=-90 && Gdir<-45
+%         histogram_part = 3 ;
+%     elseif Gdir>=-45 && Gdir<0
+%         histogram_part = 4;
+%     elseif Gdir>=0 && Gdir<45
+%         histogram_part = 5;
+%     elseif Gdir>=45 && Gdir<90
+%         histogram_part = 6;
+%     elseif Gdir>=90 && Gdir<135
+%         histogram_part = 7;
+%      elseif Gdir>=135 && Gdir<180
+%         histogram_part = 7;
+%     else
+%         histogram_part =1;
+%     end  
+% end
+%   
 
 
 
