@@ -22,7 +22,7 @@ image = im2double(image);
 
 %I cant decide which one should be first gaussian or gradient filter. May
 %be it doesnt matter.
-sigma = 1.2;
+sigma = 1;
 gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
 
 %case1: first gradient and after that gassian applied
@@ -36,7 +36,7 @@ gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
 [g_ch2x, g_ch2y] = imgradientxy( imfilter( squeeze(image(:,:,2) ), gaussian_filter));
 [g_ch3x, g_ch3y] = imgradientxy( imfilter( squeeze(image(:,:,3) ), gaussian_filter));
 
-second_gaussian = fspecial('average',[4,4]);
+second_gaussian = fspecial('average',[3,3]);
 a11 = imfilter(g_ch1x.*g_ch1x +  g_ch2x.* g_ch2x + g_ch3x.*g_ch3x, second_gaussian);
 a12 = imfilter(g_ch1x.*g_ch1y +  g_ch2x.* g_ch2y + g_ch3x.*g_ch3y, second_gaussian);
 a22 = imfilter(g_ch1y.*g_ch1y +  g_ch2y.* g_ch2y + g_ch3y.*g_ch3y, second_gaussian);
@@ -55,7 +55,7 @@ h = determinants - alpha*traces.*traces;
 %     end
 % end
 
-threshold = h >10 * mean2(abs(h)) ; %adaptive
+threshold = h > 10 * mean2(abs(h)) ; %adaptive
 h= h.*threshold;
 
 h = imregionalmax(h,8);      % Non max suppression
