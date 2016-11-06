@@ -41,18 +41,21 @@ a11 = imfilter(g_ch1x.*g_ch1x +  g_ch2x.* g_ch2x + g_ch3x.*g_ch3x, second_gaussi
 a12 = imfilter(g_ch1x.*g_ch1y +  g_ch2x.* g_ch2y + g_ch3x.*g_ch3y, second_gaussian);
 a22 = imfilter(g_ch1y.*g_ch1y +  g_ch2y.* g_ch2y + g_ch3y.*g_ch3y, second_gaussian);
 
-h = zeros(size(g_ch1x), 'double');
+%h = zeros(size(g_ch1x), 'double');
 alpha = 0.04;
-for i=2:size(g_ch1x,1)-1
-    for j=2:size(g_ch1x,2) -1       
-       C =  [a11(i,j), a12(i,j); a12(i,j), a22(i,j) ];
-       determinant_C= det(C);
-       trace_C = trace(C);
-       h(i,j) =  determinant_C - alpha*trace_C*trace_C;
-    end
-end
-h = abs(h);
-threshold = h >10 * mean2(h) ; %adaptive
+determinants = a11.*a22 - a12.*a12;
+traces = a11 + a22;
+h = determinants - alpha*traces.*traces;
+% for i=2:size(g_ch1x,1)-1
+%     for j=2:size(g_ch1x,2) -1       
+%        C =  [a11(i,j), a12(i,j); a12(i,j), a22(i,j) ];
+%        determinant_C= det(C);
+%        trace_C = trace(C);
+%        h(i,j) =  determinant_C - alpha*trace_C*trace_C;
+%     end
+% end
+
+threshold = h >10 * mean2(abs(h)) ; %adaptive
 h= h.*threshold;
 
 non_max = imregionalmax(h,8);      % Non max suppression

@@ -55,9 +55,13 @@ for i=1:size(x,1)
     feature_part_directions= grad_directions(x_coordinate-feature_width/2 : x_coordinate+feature_width/2-1, y_coordinate-feature_width/2 : y_coordinate+feature_width/2-1);
    
     histogram  = [];
+    baseAngle = 0;
+    angles = [mod(baseAngle,360), mod(baseAngle+45,360), mod(baseAngle+90,360), mod(baseAngle+135,360),mod(baseAngle+180,360), mod(baseAngle+225,360), mod(baseAngle+270,360), mod(baseAngle+315,360)];
+    angles = sort(angles, 'ascend');
+
     for j=1:feature_width/4
       for k=1:feature_width/4
-           histogram = [histogram; getHistogram( feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ), feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 )) ];                     
+           histogram = [histogram; getHistogram2( feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ), feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ), angles) ];           
       end
     end
           %features(i,:) = make_histogram_rotation_invariant(histogram, feature_width);
