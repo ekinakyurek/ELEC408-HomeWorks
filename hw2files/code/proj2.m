@@ -19,6 +19,7 @@ close all
 % additional images. A single scale pipeline works fine for these two
 % images (and will give you full credit for this project), but you will
 % need local features at multiple scales to handle harder cases.
+
 image1 = imread('../data/Notre Dame/921919841_a30df938f2_o.jpg');
 image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 
@@ -42,7 +43,6 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 % !!! You will need to implement get_features. !!!
 [image1_features] = get_features(image1, x1, y1, feature_width);
 [image2_features] = get_features(image2, x2, y2, feature_width);
- 
 
 
 %% Match features. 
@@ -51,7 +51,7 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 
 % You might want to set 'num_pts_to_visualize' and 'num_pts_to_evaluate' to
 % some constant once you start detecting hundreds of interest points,
-% otherwise things might get too cluttered. You could also threshold based
+% otherwise  things might get too cluttered. You could also threshold based
 % on confidence.
 num_pts_to_visualize = size(matches,1);
 show_correspondence(image1, image2, x1(matches(1:num_pts_to_visualize,1)), ...

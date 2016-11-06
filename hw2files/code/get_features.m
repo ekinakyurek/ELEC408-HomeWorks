@@ -42,7 +42,7 @@ function [features] = get_features(image, x, y, feature_width)
 
 gray_image = rgb2gray(image);
 
-sigma = 1;
+sigma = 1.2;
 gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
 [grad_magnitudes, grad_directions] =imgradient(imfilter(gray_image,gaussian_filter));
 
