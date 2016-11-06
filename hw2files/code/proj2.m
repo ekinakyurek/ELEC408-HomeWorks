@@ -23,6 +23,10 @@ close all
 image1 = imread('../data/Notre Dame/921919841_a30df938f2_o.jpg');
 image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 
+
+%image1 = imread('../data/Keble/keble_a.jpg');
+%image2 = imread('../data/Keble/keble_b.jpg');
+
 % You don't have to work with grayscale images. Matching with color
 % information might be helpful.
 %image1 = rgb2gray(single(image1)/255);
@@ -54,10 +58,10 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 % otherwise  things might get too cluttered. You could also threshold based
 % on confidence.
 num_pts_to_visualize = size(matches,1);
-show_correspondence(image1, image2, x1(matches(1:num_pts_to_visualize,1)), ...
-                                    y1(matches(1:num_pts_to_visualize,1)), ...
-                                    x2(matches(1:num_pts_to_visualize,2)), ...
-                                    y2(matches(1:num_pts_to_visualize,2)));
+show_correspondence(image1, image2, y1(matches(1:num_pts_to_visualize,1)), ...
+                                    x1(matches(1:num_pts_to_visualize,1)), ...
+                                    y2(matches(1:num_pts_to_visualize,2)), ...
+                                    x2(matches(1:num_pts_to_visualize,2)));
 
 num_pts_to_evaluate = size(matches,1);
 % All of the coordinates are being divided by scale_factor because of the
@@ -67,10 +71,10 @@ num_pts_to_evaluate = size(matches,1);
 % build ground truth for additional image pairs and then change the paths
 % in 'evaluate_correspondence' accordingly. Or you can simply comment out
 % this function once you start testing on additional image pairs.
-evaluate_correspondence(x1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
-                        y1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
-                        x2(matches(1:num_pts_to_evaluate,2))/scale_factor, ...
-                        y2(matches(1:num_pts_to_evaluate,2))/scale_factor);
+evaluate_correspondence(y1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
+                       x1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
+                       y2(matches(1:num_pts_to_evaluate,2))/scale_factor, ...
+                       x2(matches(1:num_pts_to_evaluate,2))/scale_factor);
 
 
 
