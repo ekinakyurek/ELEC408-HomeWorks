@@ -27,6 +27,12 @@ image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 %image1 = imread('../data/Keble/keble_a.jpg');
 %image2 = imread('../data/Keble/keble_b.jpg');
 
+%image1 = imread('../data/library/library_a.jpg');
+%image2 = imread('../data/library/library_b.jpg');
+
+%image1 = imread('../data/me/me_a.jpg');
+%image2 = imread('../data/me/me_b.jpg');
+
 % You don't have to work with grayscale images. Matching with color
 % information might be helpful.
 %image1 = rgb2gray(single(image1)/255);
@@ -57,7 +63,12 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 % some constant once you start detecting hundreds of interest points,
 % otherwise  things might get too cluttered. You could also threshold based
 % on confidence.
+
+%I took the x and y in reverse direction Therefore I changed the order in
+%show_correspondence function.
+
 num_pts_to_visualize = size(matches,1);
+%num_pts_to_visualize = 20;
 show_correspondence(image1, image2, y1(matches(1:num_pts_to_visualize,1)), ...
                                     x1(matches(1:num_pts_to_visualize,1)), ...
                                     y2(matches(1:num_pts_to_visualize,2)), ...

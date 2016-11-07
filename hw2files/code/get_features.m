@@ -18,76 +18,74 @@
 
 function [features] = get_features(image, x, y, feature_width)
 
-% To start with, you might want to simply use normalized patches as your
-% local feature. This is very simple to code and works OK. However, to get
-% full credit you will need to implement the more effective SIFT descriptor
-% (See lecture notes or Szeliski 4.1.2 or the original publications at
-% http://www.cs.ubc.ca/~lowe/keypoints/)
-
-% Your implementation does not need to exactly match the SIFT reference.
-% Here are the key properties your (baseline) descriptor should have:
-%  (1) a 4x4 grid of cells, each feature_width/4.
-%  (2) each cell should have a histogram of the local distribution of
-%    gradients in 8 orientations. Appending these histograms together will
-%    give you 4x4 x 8 = 128 dimensions.
-%  (3) Each feature should be normalized to unit length
-%
-% Histogram: You do not need to perform the interpolation in which each gradient
-% measurement contributes to multiple orientation bins in multiple cells
-% As described in Szeliski, a single gradient measurement creates a
-% weighted contribution to the 4 nearest cells and the 2 nearest
-% orientation bins within each cell, for 8 total contributions. This type
-% of interpolation probably will help, though.
-
-
+%Check if its colored  or gray image. If it is color turn it to gray image.
+%I didn't evaluate feature vectors with color gradients. It works well without color.
+if length(size(image)) == 3
 gray_image = rgb2gray(image);
+else
+gray_image = image;
+end
 
+%We should smooth image before calculating feature vectors beacuse corner 
+%has huge derivatives and they can change one picture to other drastically.
+%However, we want to mach them so we should smooth them. I find ideal sigma as 1.2 for both images that I tried
 sigma = 1.2;
 gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
+
+% I find the magnitudes and directions of gradients for our gaussian
+% filtered image.
 [grad_magnitudes, grad_directions] =imgradient(imfilter(gray_image,gaussian_filter));
 
+%Pre allocation of features vector for the speed.
 features = zeros([size(x,1),128]);
+
+%For each keypoint we will evaluate feature vector.
 for i=1:size(x,1)
+    %x and y coordinates of keypoint
     x_coordinate = x(i);
     y_coordinate = y(i);
     
+    %I get a patch from gradient magnitudes of image with size of the feature width centered in our keypoint.
     feature_part_gradients = grad_magnitudes(x_coordinate-feature_width/2 : x_coordinate+feature_width/2-1, y_coordinate-feature_width/2 : y_coordinate+feature_width/2-1).*fspecial('Gaussian', feature_width, 8);
+    %I o same thing for direction of the gradients.
     feature_part_directions= grad_directions(x_coordinate-feature_width/2 : x_coordinate+feature_width/2-1, y_coordinate-feature_width/2 : y_coordinate+feature_width/2-1);
-   
-    histogram  = [];
-    for j=1:feature_width/4
-      for k=1:feature_width/4
-           histogram = [histogram; getHistogram( feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ), feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 )) ];                     
+  
+    %pre allocation for speed
+    histogram  = zeros([1,128], 'double');
+    %We devide feature patch to 4x4 cells. In each cell we calculate 8d histogram vector.
+    for j=1:4
+      for k=1:4
+          % When we get the histogram of a cell we will append the
+          % histogram array. However, I preallocate histogram vector,
+          % therefore I find the location of new histogram and add the
+          % histogram to that location.
+           histogram( ((j-1)*32+(k-1)*8 +1): ((j-1)*32+k*8)  ) = getHistogram( feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 )   ,   feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4) );                     
       end
     end
           %features(i,:) = make_histogram_rotation_invariant(histogram, feature_width);
+          %Adding the new feature vector to features array.
            features(i,:) = histogram';
 end
-
+%Normalizing features vector.
 features = normc(features);
+%Clipping excessive histogram values to 0.2. And renormalizing it to 1.
 features =normc(features.*(features<0.2) + 0.2*(features>=0.2) );
-
-% You do not need to do the normalize -> threshold -> normalize again
-% operation as detailed in Szeliski and the SIFT paper. It can help, though.
-
-% Placeholder that you can delete. Empty features.
-%features = zeros(size(x,1), 128);
-
-
-
+%End of the function
 end
 
 function histogram = getHistogram(Gdir, Grad)
+%To speed up I trasform matricies to column vectors.
 Gdir = Gdir(:);
 Grad = Grad(:);
-histogram = [(Gdir>=-180 & Gdir<-135)'*Grad; (Gdir>=-135 & Gdir<-90)'*Grad; ( Gdir>=-90 & Gdir<-45)'*Grad; (Gdir>=-45 & Gdir<0)'*Grad; (Gdir>=0 & Gdir<45)'*Grad; (Gdir>=45 & Gdir<90)'*Grad; (Gdir>=90 & Gdir<135)'*Grad; (Gdir>=135 & Gdir<180)'*Grad];
-end
+%I use conditions on arrays to determine a gradients' histogram locations.
 
-function histogram = getHistogram2(Gdir, Grad, angles)
-Gdir = Gdir(:) +180;
-Grad = Grad(:);
-%histogram = [(Gdir>=-180 & Gdir<-135)'*Grad; (Gdir>=-135 & Gdir<-90)'*Grad; ( Gdir>=-90 & Gdir<-45)'*Grad; (Gdir>=-45 & Gdir<0)'*Grad; (Gdir>=0 & Gdir<45)'*Grad; (Gdir>=45 & Gdir<90)'*Grad; (Gdir>=90 & Gdir<135)'*Grad; (Gdir>=135 & Gdir<180)'*Grad];
-histogram = [(Gdir>=angles(1) & Gdir< angles(2))'*Grad; (Gdir>=angles(2) & Gdir<angles(3))'*Grad; ( Gdir>=angles(3) & Gdir<angles(4))'*Grad; (Gdir>=angle(4)& Gdir<angles(5))'*Grad; (Gdir>=angles(5) & Gdir<angles(6))'*Grad; (Gdir>=angles(6) & Gdir<angles(7))'*Grad; (Gdir>=angles(7) & Gdir<angles(8))'*Grad; (Gdir>=angles(8) & Gdir< 360)'*Grad];
+%For examples (Gdir>=-180 & Gdir<-135) is 1 for the gradients whose
+%directions between [-180,-135] and gives zero for others. And I inner
+%product that with Grad vector to find sum of the gradients whose
+%directions  between [-180,-135]. 
+%I do same thing for other 7 intervals.
+histogram = [(Gdir>=-180 & Gdir<-135)'*Grad; (Gdir>=-135 & Gdir<-90)'*Grad; ( Gdir>=-90 & Gdir<-45)'*Grad; (Gdir>=-45 & Gdir<0)'*Grad; (Gdir>=0 & Gdir<45)'*Grad; (Gdir>=45 & Gdir<90)'*Grad; (Gdir>=90 & Gdir<135)'*Grad; (Gdir>=135 & Gdir<180)'*Grad];
+%End of the function
 end
 
 function  histogram = make_histogram_rotation_invariant(histogram, feature_width)
@@ -110,30 +108,6 @@ function  histogram = make_histogram_rotation_invariant(histogram, feature_width
 
 end
 
-
-% function rotational_invariant_feature_vector =  make_rotational_invariant(gradients,directions)
-%        
-%     if Gdir>=-180 && Gdir<-135
-%         histogram_part = 1;
-%     elseif Gdir>=-135 && Gdir<-90
-%          histogram_part =2;
-%     elseif Gdir>=-90 && Gdir<-45
-%         histogram_part = 3 ;
-%     elseif Gdir>=-45 && Gdir<0
-%         histogram_part = 4;
-%     elseif Gdir>=0 && Gdir<45
-%         histogram_part = 5;
-%     elseif Gdir>=45 && Gdir<90
-%         histogram_part = 6;
-%     elseif Gdir>=90 && Gdir<135
-%         histogram_part = 7;
-%      elseif Gdir>=135 && Gdir<180
-%         histogram_part = 7;
-%     else
-%         histogram_part =1;
-%     end  
-% end
-%   
 
 
 
