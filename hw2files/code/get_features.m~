@@ -61,7 +61,6 @@ for i=1:size(x,1)
       end
     end
           Gdir =  make_directions_rotation_invariant(histogram, feature_part_directions((j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 ));
-        histogram = [];
       for j=1:feature_width/4
       for k=1:feature_width/4
            histogram = [histogram; getHistogram( Gdir , feature_part_gradients( (j-1)*feature_width/4 + 1: j*feature_width/4,   (k-1)*feature_width/4 + 1: k*feature_width/4 )) ];                     

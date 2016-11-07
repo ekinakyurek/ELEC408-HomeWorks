@@ -15,14 +15,25 @@
 % 'scale' and 'orientation' are nx1 vectors indicating the scale and
 %   orientation of each interest point. These are OPTIONAL. By default you
 %   do not need to make scale and orientation invariant local features.
-function [x, y, confidence, scale, orientation] = get_interest_points(image, feature_width)
+function [x, y, scales, confidence,  orientation] = get_interest_points(image, feature_width)
 
 % Implement the Harris corner detector to start with.
+gray_image =rgb2gray(image);
 image = im2double(image);
 
 %I cant decide which one should be first gaussian or gradient filter. May
 %be it doesnt matter.
-sigma = 1;
+sigma = 0.15;
+scale_factor =  2^(0.25);
+xy = zeros(size(gray_image));
+scale_xy = zeros(size(gray_image));
+x = [];
+y=  [];
+scales = [];
+
+for n = 1:15
+    
+sigma = scale_factor*sigma;
 gaussian_filter = fspecial('Gaussian', feature_width+1, sigma);
 
 %case1: first gradient and after that gassian applied
@@ -57,15 +68,29 @@ h = determinants - alpha*traces.*traces;
 
 threshold = h > 10 * mean2(abs(h)) ; %adaptive
 h= h.*threshold;
-
 h = imregionalmax(h,8);      % Non max suppression
-[x,y] = find(h);
 
+
+
+image_above = (sigma/scale_factor)^2*imfilter(gray_image, fspecial('log', [3,3], sigma/scale_factor) );
+image_current =(sigma)^2 * imfilter(gray_image, fspecial('log', [3,3], sigma));
+image_belove =(sigma*scale_factor)^2 * imfilter(gray_image, fspecial('log', [3,3], sigma*scale_factor));
+
+
+local_maximums =  image_current > image_above & image_current > image_belove;
+
+h= h.*local_maximums;
+scale_xy = scale_xy + (h-xy>0).*sigma;
+xy = (xy+h)>0;
+end
+
+[x,y,scales] = find(scale_xy);
 image_sizex = size(image,1);
 image_sizey = size(image,2);
 valid_indicies = (x > feature_width/2+1) & (x+feature_width/2 < image_sizex +1) & (y > feature_width/2+1) & (y+feature_width/2 < image_sizey + 1);
 x = x(valid_indicies);
 y = y(valid_indicies);
+scales = scales(valid_indicies);
 
 figure, imagesc(image), axis image, hold on
 plot(y,x,'ys'), title('corners detected');

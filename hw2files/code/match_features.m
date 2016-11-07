@@ -21,7 +21,7 @@ function [matches, confidences] = match_features(features1, features2)
 % section 4.1.3 of Szeliski. 
 
 % Placeholder that you can delete. Random matches and confidences
-threshold = 0.665;
+threshold = 0.95;
 distances = pdist2(features1, features2, 'euclidean');
 [distances_sorted, indices] = sort(distances, 2);
 % Sort the matches so that the most confident onces are at the top of the

@@ -20,19 +20,21 @@ close all
 % images (and will give you full credit for this project), but you will
 % need local features at multiple scales to handle harder cases.
 
-image1 = imread('../data/Notre Dame/921919841_a30df938f2_o.jpg');
-image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
+%image1 = imread('../data/Notre Dame/921919841_a30df938f2_o.jpg');
+%image2 = imread('../data/Notre Dame/4191453057_c86028ce1f_o.jpg');
 
 
 %image1 = imread('../data/Keble/keble_a.jpg');
 %image2 = imread('../data/Keble/keble_b.jpg');
 
+image1 = imread('../data/Shrek/shrek_reference.png');
+image2 = imread('../data/Shrek/shrek_test.png');
 % You don't have to work with grayscale images. Matching with color
 % information might be helpful.
 %image1 = rgb2gray(single(image1)/255);
 %image2 = rgb2gray(single(image2)/255);
 
-scale_factor = 0.5; %make images smaller to speed up the algorithm
+scale_factor = 1; %make images smaller to speed up the algorithm
 image1 = imresize(image1, scale_factor, 'bilinear');
 image2 = imresize(image2, scale_factor, 'bilinear');
 
@@ -40,13 +42,13 @@ feature_width = 16; %width and height of each local feature, 16x16, in pixels.
 
 %% Find distinctive points in each image. 
 % !!! You will need to implement get_interest_points. !!!
-[x1, y1] = get_interest_points(image1, feature_width);
-[x2, y2] = get_interest_points(image2, feature_width);
+[x1, y1, scales1] = get_interest_points(image1, feature_width);
+[x2, y2, scales2] = get_interest_points(image2, feature_width);
 
 %% Create feature vectors at each interest point. 
 % !!! You will need to implement get_features. !!!
-[image1_features] = get_features(image1, x1, y1, feature_width);
-[image2_features] = get_features(image2, x2, y2, feature_width);
+[image1_features] = get_features(image1, x1, y1, feature_width, scales1);
+[image2_features] = get_features(image2, x2, y2, feature_width, scales2);
 
 
 %% Match features. 
@@ -71,11 +73,13 @@ num_pts_to_evaluate = size(matches,1);
 % build ground truth for additional image pairs and then change the paths
 % in 'evaluate_correspondence' accordingly. Or you can simply comment out
 % this function once you start testing on additional image pairs.
-evaluate_correspondence(y1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
-                       x1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
-                       y2(matches(1:num_pts_to_evaluate,2))/scale_factor, ...
-                       x2(matches(1:num_pts_to_evaluate,2))/scale_factor);
-
+%evaluate_correspondence(y1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
+%                       x1(matches(1:num_pts_to_evaluate,1))/scale_factor, ...
+%                       y2(matches(1:num_pts_to_evaluate,2))/scale_factor, ...
+%                       x2(matches(1:num_pts_to_evaluate,2))/scale_factor);
+%figure; showMatchedFeatures(image1,image2,...
+                                       %     [y1(matches(1:num_pts_to_visualize,1)),x1(matches(1:num_pts_to_visualize,1))], ...
+                                          %  [y2(matches(1:num_pts_to_visualize,2)),x2(matches(1:num_pts_to_visualize,2)) ] );
 
 
 
