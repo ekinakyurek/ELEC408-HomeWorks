@@ -29,6 +29,7 @@ close all
 
 image1 = imread('../data/Shrek/shrek_reference.png');
 image2 = imread('../data/Shrek/shrek_test.png');
+
 % You don't have to work with grayscale images. Matching with color
 % information might be helpful.
 %image1 = rgb2gray(single(image1)/255);

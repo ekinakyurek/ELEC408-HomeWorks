@@ -93,7 +93,7 @@ y = y(valid_indicies);
 scales = scales(valid_indicies);
 
 figure, imagesc(image), axis image, hold on
-plot(y,x,'ys'), title('corners detected');
+plot(y,x,'ro'), title('corners');
 
 % If you're finding spurious interest point detections near the boundaries,
 % it is safe to simply suppress the gradients / corners near the edges of
